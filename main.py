@@ -11,26 +11,44 @@ FONT_NAME = "Courier"
 WORK_MIN = 25
 SHORT_BREAK_MIN = 5
 LONG_BREAK_MIN = 20
-REPS = 0
+reps = 0
+
+timer = None
 
 
-# ---------------------------- TIMER RESET ------------------------------- # 
+# ---------------------------- TIMER RESET ------------------------------- #
+
+def reset_timer():
+    window.after_cancel(timer)
+    #timer 00:00
+    #title : Timer
+    #reset check mark
+    canvas.itemconfig(timer_count,text="00:00")
+    timer_text.config(text="Timer", fg=GREEN)
+    green_mark.config(text="")
+    global reps
+    reps=0
+
+
 
 # ---------------------------- TIMER MECHANISM ------------------------------- # 
 def start_timer():
-    global REPS
-    REPS +=1
+    global reps
+    reps +=1
     work_sec = WORK_MIN * 60
     short_break_sec = SHORT_BREAK_MIN * 60
     long_break_sec = LONG_BREAK_MIN * 60
 
 
-    if REPS % 8 == 0:
+    if reps % 8 == 0:
         countdown(long_break_sec)
-    elif REPS % 2 == 0 :
+        timer_text.config(text="Break", fg=RED)
+    elif reps % 2 == 0 :
         countdown(short_break_sec)
+        timer_text.config(text="Break", fg=PINK)
     else:
         countdown(work_sec)
+        timer_text.config(text="Work", fg=GREEN)
 
 # def start_timer():
 #     countdown(11)
@@ -47,9 +65,16 @@ def countdown(count):
 
     canvas.itemconfig(timer_count, text=f"{count_min}:{count_sec}")
     if count > 0:
-        window.after(1000, countdown, count - 1)
+        global timer
+        timer = window.after(1000, countdown, count - 1)
     else:
         start_timer()
+        marks =""
+        work_session = math.floor(reps / 2)
+        for _ in range(work_session):
+            marks += "✔"
+        green_mark.config(text=marks)
+
 
 
 # ---------------------------- UI SETUP ------------------------------- #
@@ -82,11 +107,11 @@ start_button = Button(text="Start", font=FONT_NAME, bg="white", command=start_ti
 start_button.grid(column=0, row=2)
 
 #Reset button
-reset_button = Button(text="Reset", font=FONT_NAME, bg="white")
+reset_button = Button(text="Reset", font=FONT_NAME, bg="white", command=reset_timer)
 reset_button.grid(column=2, row=2)
 
 #green_mark
-green_mark = Label(text="✔", fg=GREEN, bg=YELLOW, font=(30))
+green_mark = Label( fg=GREEN, bg=YELLOW, font=(30))
 green_mark.grid(row=3, column=1)
 
 
